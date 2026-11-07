@@ -38,11 +38,16 @@ for (const [label, command, args] of steps) {
   const env = { ...process.env };
   if (label === "Chromium UI checks") env.ENDERLINK_TEST_BROWSER = "chromium";
   if (label === "WebKit UI checks") env.ENDERLINK_TEST_BROWSER = "webkit";
-  const result = spawnSync(command, args, {
+  // npm is a .cmd shim on Windows and must be launched through the shell.
+  const spawnOptions = {
     cwd: root,
     env,
     stdio: "inherit",
-  });
+    ...(process.platform === "win32" && command === "npm.cmd"
+      ? { shell: true }
+      : {}),
+  };
+  const result = spawnSync(command, args, spawnOptions);
   if (result.error) {
     console.error(`Could not start ${command}: ${result.error.message}`);
     process.exit(1);
