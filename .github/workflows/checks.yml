@@ -21,8 +21,8 @@ jobs:
             bundles: nsis
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -65,7 +65,7 @@ jobs:
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Build desktop bundle
         run: npm run tauri -w apps/desktop -- build --bundles ${{ matrix.bundles }} --ci
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: enderlink-${{ runner.os }}-${{ runner.arch }}
           path: target/release/bundle/

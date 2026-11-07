@@ -316,6 +316,7 @@ fn platform_installation(_app: &AppHandle, exe: PathBuf) -> Result<Installation>
 
 fn cleanup_roots(app: &AppHandle) -> Result<Vec<PathBuf>> {
     let paths = app.path();
+    #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     let mut candidates = vec![
         paths.app_data_dir(),
         paths.app_local_data_dir(),

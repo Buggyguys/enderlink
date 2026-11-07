@@ -12,6 +12,8 @@ use std::{
         Arc,
         atomic::{AtomicBool, Ordering},
     },
+    thread,
+    time::Duration,
 };
 
 #[derive(Clone, Serialize)]
@@ -521,7 +523,7 @@ impl Service {
 }
 
 fn commit_saved_directory(staging: &Path, destination: &Path) -> Result<()> {
-    match fs::rename(staging, destination) {
+    match retry_rename(staging, destination) {
         Ok(()) => Ok(()),
         Err(rename_error) => {
             ensure!(
@@ -540,7 +542,7 @@ fn commit_saved_directory(staging: &Path, destination: &Path) -> Result<()> {
                         fs::File::open(&path)?.sync_all()?;
                     }
                 }
-                fs::remove_dir_all(staging)
+                retry_remove_dir_all(staging)
                     .context("Could not remove the temporary saved-library staging folder")?;
                 Ok(())
             })();
@@ -555,6 +557,36 @@ fn commit_saved_directory(staging: &Path, destination: &Path) -> Result<()> {
             }
         }
     }
+}
+
+fn retry_rename(from: &Path, to: &Path) -> std::io::Result<()> {
+    let mut last = None;
+    for attempt in 0..10 {
+        match fs::rename(from, to) {
+            Ok(()) => return Ok(()),
+            Err(error) if error.kind() == std::io::ErrorKind::PermissionDenied && attempt < 9 => {
+                last = Some(error);
+                thread::sleep(Duration::from_millis(100));
+            }
+            Err(error) => return Err(error),
+        }
+    }
+    Err(last.expect("rename retry loop always records a permission error"))
+}
+
+fn retry_remove_dir_all(path: &Path) -> std::io::Result<()> {
+    let mut last = None;
+    for attempt in 0..10 {
+        match fs::remove_dir_all(path) {
+            Ok(()) => return Ok(()),
+            Err(error) if error.kind() == std::io::ErrorKind::PermissionDenied && attempt < 9 => {
+                last = Some(error);
+                thread::sleep(Duration::from_millis(100));
+            }
+            Err(error) => return Err(error),
+        }
+    }
+    Err(last.expect("remove retry loop always records a permission error"))
 }
 
 fn valid_world(world: &World) -> Result<()> {
