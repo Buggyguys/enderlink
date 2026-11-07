@@ -591,6 +591,7 @@ fn retry_remove_dir_all(path: &Path) -> std::io::Result<()> {
 }
 
 #[cfg(windows)]
+#[allow(clippy::permissions_set_readonly_false)]
 fn make_tree_writable(root: &Path) -> Result<()> {
     for path in files::safe_entries(root)? {
         let mut permissions = fs::symlink_metadata(&path)?.permissions();

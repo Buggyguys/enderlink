@@ -17,6 +17,9 @@ const dist = path.join(root, "apps/desktop/dist");
     viewport: { width: 1180, height: 830 },
     reducedMotion: "no-preference",
   });
+  // Keep the animation assertion deterministic on runners that inherit the
+  // host OS accessibility preference. Production still respects that preference.
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.route("**/*", async (route) => {
