@@ -75,10 +75,27 @@ pub fn copy_tree(from: &Path, to: &Path) -> Result<()> {
         if p.is_dir() {
             fs::create_dir_all(dest)?;
         } else {
-            fs::copy(p, dest)?;
+            copy_with_retries(&p, &dest)?;
         }
     }
     Ok(())
+}
+
+fn copy_with_retries(from: &Path, to: &Path) -> Result<()> {
+    let mut last = None;
+    for attempt in 0..30 {
+        match fs::copy(from, to) {
+            Ok(_) => return Ok(()),
+            Err(error) if error.kind() == std::io::ErrorKind::PermissionDenied && attempt < 29 => {
+                last = Some(error);
+                std::thread::sleep(std::time::Duration::from_millis(100));
+            }
+            Err(error) => return Err(error.into()),
+        }
+    }
+    Err(last
+        .expect("copy retry loop always records a permission error")
+        .into())
 }
 pub fn zip_dir(from: &Path, to: &Path) -> Result<()> {
     let file = File::create(to)?;

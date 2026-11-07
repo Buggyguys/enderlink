@@ -542,6 +542,7 @@ fn commit_saved_directory(staging: &Path, destination: &Path) -> Result<()> {
                         fs::File::open(&path)?.sync_all()?;
                     }
                 }
+                make_tree_writable(staging)?;
                 retry_remove_dir_all(staging)
                     .context("Could not remove the temporary saved-library staging folder")?;
                 Ok(())
@@ -561,10 +562,10 @@ fn commit_saved_directory(staging: &Path, destination: &Path) -> Result<()> {
 
 fn retry_rename(from: &Path, to: &Path) -> std::io::Result<()> {
     let mut last = None;
-    for attempt in 0..10 {
+    for attempt in 0..30 {
         match fs::rename(from, to) {
             Ok(()) => return Ok(()),
-            Err(error) if error.kind() == std::io::ErrorKind::PermissionDenied && attempt < 9 => {
+            Err(error) if error.kind() == std::io::ErrorKind::PermissionDenied && attempt < 29 => {
                 last = Some(error);
                 thread::sleep(Duration::from_millis(100));
             }
@@ -576,10 +577,10 @@ fn retry_rename(from: &Path, to: &Path) -> std::io::Result<()> {
 
 fn retry_remove_dir_all(path: &Path) -> std::io::Result<()> {
     let mut last = None;
-    for attempt in 0..10 {
+    for attempt in 0..30 {
         match fs::remove_dir_all(path) {
             Ok(()) => return Ok(()),
-            Err(error) if error.kind() == std::io::ErrorKind::PermissionDenied && attempt < 9 => {
+            Err(error) if error.kind() == std::io::ErrorKind::PermissionDenied && attempt < 29 => {
                 last = Some(error);
                 thread::sleep(Duration::from_millis(100));
             }
@@ -587,6 +588,23 @@ fn retry_remove_dir_all(path: &Path) -> std::io::Result<()> {
         }
     }
     Err(last.expect("remove retry loop always records a permission error"))
+}
+
+#[cfg(windows)]
+fn make_tree_writable(root: &Path) -> Result<()> {
+    for path in files::safe_entries(root)? {
+        let mut permissions = fs::symlink_metadata(&path)?.permissions();
+        if permissions.readonly() {
+            permissions.set_readonly(false);
+            fs::set_permissions(path, permissions)?;
+        }
+    }
+    Ok(())
+}
+
+#[cfg(not(windows))]
+fn make_tree_writable(_root: &Path) -> Result<()> {
+    Ok(())
 }
 
 fn valid_world(world: &World) -> Result<()> {
