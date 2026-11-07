@@ -41,7 +41,7 @@ Linux app data normally lives at `$XDG_DATA_HOME/io.github.buggyguys.enderlink`,
 
 ## Release checks
 
-The GitHub workflows validate the source on Windows x64, macOS arm64, and Linux x64. A `v*` tag runs the same checks, builds a Windows NSIS installer, a macOS Apple Silicon DMG, and Linux x64 AppImage/Debian packages, then attaches them with SHA-256 files to the GitHub release. Builds are unsigned unless the repository owner configures signing credentials; no provider or signing secrets are stored in the repository. Only the local macOS build has been exercised in this workspace. Native builds are not substitutes for testing real Minecraft clients, remote networks, power events, and desktop credential prompts.
+The GitHub workflows validate the source on Windows x64, macOS arm64 (`macos-15`), and Linux x64. A `v*` tag runs the same checks, builds a Windows NSIS installer, a macOS Apple Silicon DMG, and Linux x64 AppImage/Debian packages, then attaches them with SHA-256 files to the GitHub release. Builds are unsigned unless the repository owner configures signing credentials; no provider or signing secrets are stored in the repository. Only the local macOS build has been exercised in this workspace. Native builds are not substitutes for testing real Minecraft clients, remote networks, power events, and desktop credential prompts.
 
 Run `npm run validate` before creating a tag. It checks the public tree and all local test gates without using real app data. The direct download links in the root README point to the stable release asset names.
 
