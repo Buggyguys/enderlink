@@ -364,7 +364,7 @@ impl Service {
             // Reach storage before uninstall deletes the original files.
             for path in files::safe_entries(&staging)?.into_iter().rev() {
                 if path.is_file() {
-                    fs::File::open(&path)?.sync_all()?;
+                    fs::OpenOptions::new().write(true).open(&path)?.sync_all()?;
                 }
                 #[cfg(unix)]
                 if path.is_dir() {
@@ -539,7 +539,7 @@ fn commit_saved_directory(staging: &Path, destination: &Path) -> Result<()> {
                     .context("Could not copy the saved library to the chosen folder")?;
                 for path in files::safe_entries(destination)? {
                     if path.is_file() {
-                        fs::File::open(&path)?.sync_all()?;
+                        fs::OpenOptions::new().write(true).open(&path)?.sync_all()?;
                     }
                 }
                 make_tree_writable(staging)?;
