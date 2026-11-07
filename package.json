@@ -1,0 +1,22 @@
+{
+  "name": "enderlink-workspace",
+  "private": true,
+  "workspaces": [
+    "apps/desktop"
+  ],
+  "scripts": {
+    "dev": "npm run tauri -w apps/desktop -- dev",
+    "build": "npm run build -w apps/desktop",
+    "desktop:build": "npm run tauri -w apps/desktop -- build",
+    "test": "npm test -w apps/desktop",
+    "test:rust": "cargo test -p enderlink-core",
+    "test:ui": "node scripts/check-desktop-ui.cjs",
+    "check:public": "node scripts/check-public-repo.cjs",
+    "check:version": "node scripts/check-version.cjs",
+    "validate": "node scripts/validate.cjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.0",
+    "prettier": "^3.9.10"
+  }
+}

@@ -1,0 +1,114 @@
+.select-trigger {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 39px;
+  padding: 9px 11px;
+  border: 1px solid #685875;
+  border-radius: 9px;
+  background: #17131f;
+  color: #f2eafa;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: left;
+  box-shadow: none;
+}
+.select-trigger > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.select-chevron {
+  display: flex;
+  flex-shrink: 0;
+  color: #c7b7d5;
+}
+.select-trigger:hover:not(:disabled),
+.select-trigger[data-state="open"] {
+  border-color: #c39ee8;
+}
+.select-trigger:active:not(:disabled) {
+  transform: none;
+}
+.select-trigger:disabled {
+  opacity: 1;
+  color: #a99ab6;
+  border-color: #41354b;
+  cursor: not-allowed;
+}
+.select-trigger[data-placeholder] {
+  color: #bcadc9;
+}
+/* Opaque on purpose: text never competes with stars, blur or other windows. */
+.select-menu {
+  z-index: 220;
+  box-sizing: border-box;
+  width: var(--radix-select-trigger-width);
+  max-width: calc(100vw - 24px);
+  max-height: min(320px, var(--radix-select-content-available-height));
+  overflow: hidden;
+  border: 1px solid #79658d;
+  border-radius: 10px;
+  background: #211b2b;
+  color: #f4ecfc;
+  box-shadow: 0 10px 36px #0009;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.5;
+  isolation: isolate;
+}
+.select-viewport {
+  padding: 5px;
+  overscroll-behavior: contain;
+}
+.select-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 30px 8px 10px;
+  border-radius: 5px;
+  overflow-wrap: anywhere;
+  color: #f4ecfc;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.select-option[data-state="checked"] {
+  background: #33263f;
+}
+.select-option[data-highlighted] {
+  outline: 2px solid #d2a2ed;
+  outline-offset: -2px;
+  background: #493356;
+  color: #fff;
+}
+.select-option[data-disabled] {
+  color: #a99ab6;
+  pointer-events: none;
+}
+.select-check {
+  position: absolute;
+  right: 9px;
+  display: flex;
+  color: #efb3ef;
+}
+.select-scroll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  flex-shrink: 0;
+  color: #e2c2ed;
+  background: #211b2b;
+}
+.select-scroll-up svg {
+  transform: rotate(180deg);
+}

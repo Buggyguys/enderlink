@@ -1,0 +1,22 @@
+{
+  "identifier": "main",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "dialog:allow-confirm",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        {
+          "url": "https://playit.gg/*"
+        },
+        {
+          "url": "https://www.minecraft.net/*"
+        }
+      ]
+    },
+    "opener:allow-reveal-item-in-dir"
+  ]
+}

@@ -1,0 +1,54 @@
+.gameplay-fields {
+  min-width: 0;
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.gameplay-fields legend {
+  padding: 0 7px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.gameplay-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  cursor: pointer;
+}
+.gameplay-option input {
+  flex: 0 0 auto;
+  margin-top: 3px;
+}
+.gameplay-option strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+}
+.gameplay-option small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.gameplay-option:has(input:disabled) {
+  cursor: default;
+  opacity: 0.65;
+}
+.player-command-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+@media (max-width: 540px) {
+  .gameplay-fields {
+    padding: 12px;
+  }
+  .player-command-toggle {
+    flex-basis: 100%;
+  }
+}

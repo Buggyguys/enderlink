@@ -1,0 +1,25 @@
+node_modules/
+test-results/
+playwright-report/
+.DS_Store
+/target/
+/dist/
+apps/desktop/dist/
+apps/desktop/src-tauri/gen/
+*.log
+
+*.tsbuildinfo
+
+# Local credentials, databases, and exported/runtime archives.
+.env
+.env.*
+*.sqlite
+*.sqlite3
+*.db
+*.dmg
+*.zip
+*.pem
+*.p12
+*.key
+coverage/
+release-assets/

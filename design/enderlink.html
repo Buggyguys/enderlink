@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enderlink — interactive product design</title>
+<style>
+/* Fallback theme for opening this file locally; the inline viewer provides its own theme. */
+@layer fallback {
+:root {
+  color-scheme: dark;
+  --background: light-dark(#fafafa, #101214); --foreground: light-dark(#202329, #e8eaed);
+  --muted: light-dark(#f0f2f3, #1a1e21); --muted-foreground: light-dark(#606871, #9ba4ad);
+  --card: light-dark(#fff, #171b1e); --card-foreground: var(--foreground);
+  --popover: light-dark(#fff, #1b2024); --popover-foreground: var(--foreground);
+  --secondary: light-dark(#edf0f2, #22282c); --secondary-foreground: var(--foreground);
+  --border: light-dark(#dce1e4, #30383e); --ring: #8bbda3;
+  --primary: #a5d6b8; --primary-foreground: #14271c;
+  --accent: #a5d6b8; --accent-foreground: #14271c;
+  --success: #9acead; --success-foreground: #13251a;
+  --info: #98bcde; --warning: #e1be80; --destructive: #ed969b;
+  --chart-1: #a5d6b8; --chart-2: #b7a9dd; --chart-3: #e1be80;
+  --code-background: var(--muted); --radius: 14px;
+  --font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-sans); color: var(--foreground); font-size: 14px;
+}
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input, select { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .45; }
+button, a, input, select { outline-offset: 4px; }
+:focus-visible { outline: 2px solid var(--ring); }
+a { color: var(--primary); }
+button { transition: background 140ms, opacity 140ms, transform 140ms; }
+button:active:not(:disabled) { transform: translateY(1px); }
+button:focus:not(:focus-visible) { outline: none; }
+h1, h2, h3, p { margin: 0; }
+h1 { font-size: clamp(23px, 3.6vw, 30px); letter-spacing: -.04em; line-height: 1.2; font-weight: 650; }
+h2 { font-size: 16px; letter-spacing: -.02em; font-weight: 600; }
+h3 { font-size: 14px; font-weight: 600; }
+small, .small { font-size: 12px; }
+.muted { color: var(--muted-foreground); }
+.mono { font-family: var(--font-mono); font-size: 12px; }
+.numbers { font-variant-numeric: tabular-nums; }
+.app { max-width: 1200px; margin-inline: auto; }
+.topbar { display: flex; align-items: center; gap: 22px; min-height: 66px; border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 17px; letter-spacing: -.04em; white-space: nowrap; }
+.mark { width: 26px; height: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; transform: rotate(-7deg); }
+.mark i { background: var(--primary); border-radius: 3px; }
+.mark i:nth-child(2) { opacity: .5; }.mark i:nth-child(3) { opacity: .75; }
+.tabs { display: flex; align-items: center; gap: 4px; }
+.tab { border: 0; background: transparent; color: var(--muted-foreground); padding: 9px 13px; border-radius: 8px; white-space: nowrap; font-weight: 550; }
+.tab[aria-current="page"] { background: var(--secondary); color: var(--foreground); }
+.tab:hover { color: var(--foreground); background: var(--muted); }
+.tab .emoji { margin-right: 5px; }
+.top-state { margin-left: auto; color: var(--muted-foreground); display: flex; align-items: center; gap: 7px; white-space: nowrap; font-size: 12px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; flex-shrink: 0; }
+.green { color: var(--success); }.amber { color: var(--warning); }.danger-text { color: var(--destructive); }
+.demo { display: flex; gap: 10px; align-items: center; padding-block: 12px 3px; color: var(--muted-foreground); font-size: 11px; line-height: 1.5; }
+.demo .label { letter-spacing: .07em; font-weight: 650; font-size: 10px; color: var(--warning); white-space: nowrap; }
+.demo button { margin-left: auto; white-space: nowrap; }
+main { padding-block: 22px 28px; }
+.page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 23px; }
+.page-head .sub { margin-top: 8px; color: var(--muted-foreground); font-size: 13px; line-height: 1.6; }
+.eyebrow { letter-spacing: .12em; font-size: 10px; font-weight: 650; text-transform: uppercase; color: var(--muted-foreground); margin-bottom: 9px; }
+.back { display: inline-flex; gap: 6px; margin-bottom: 16px; color: var(--muted-foreground); background: none; border: 0; padding: 0; font-size: 12px; }
+.actions, .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.between { justify-content: space-between; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 37px; padding: 8px 13px; border-radius: 8px; border: 1px solid var(--border); background: var(--secondary); color: var(--foreground); font-size: 12px; font-weight: 550; white-space: nowrap; min-width: 80px; text-decoration: none; }
+.btn:hover:not(:disabled) { background: color-mix(in srgb, var(--secondary) 80%, var(--foreground)); }
+.btn.primary { background: var(--primary); color: var(--primary-foreground); border-color: transparent; }
+.btn.primary:hover:not(:disabled) { opacity: .88; background: var(--primary); }
+.btn.danger { color: var(--destructive); background: color-mix(in srgb, var(--destructive) 10%, var(--card)); border-color: color-mix(in srgb, var(--destructive) 35%, var(--border)); }
+.btn.ghost { background: transparent; }
+.btn.icon { min-width: 34px; padding: 6px; }
+.text-btn { background: transparent; border: 0; padding: 0; color: var(--muted-foreground); font-size: 12px; }
+.text-btn:hover { color: var(--foreground); }
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 7px; border-radius: 5px; background: var(--secondary); color: var(--muted-foreground); font-size: 10px; font-weight: 550; line-height: 1.2; white-space: nowrap; }
+.badge.green { background: color-mix(in srgb, var(--success) 10%, transparent); color: var(--success); }
+.badge.amber { background: color-mix(in srgb, var(--warning) 10%, transparent); color: var(--warning); }
+.card { padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); min-width: 0; }
+.card-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+.card-title h2 { font-size: 14px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.stat { min-height: 115px; }
+.stat-label { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--muted-foreground); }
+.stat-value { font-size: 27px; letter-spacing: -.04em; font-weight: 550; margin: 11px 0 6px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat-value span { color: var(--muted-foreground); font-size: 12px; font-weight: 400; letter-spacing: 0; }
+.stat-foot { font-size: 10px; color: var(--muted-foreground); }
+.dashboard { display: grid; grid-template-columns: 1.1fr 1.1fr 1fr; gap: 16px; align-items: start; }
+.wide { grid-column: span 2; }
+.chart-card { min-height: 270px; }
+.segment { display: inline-flex; gap: 3px; border-radius: 7px; background: var(--muted); padding: 3px; }
+.segment button { border: 0; border-radius: 5px; padding: 5px 9px; background: transparent; color: var(--muted-foreground); font-size: 10px; min-height: 27px; }
+.segment button[aria-pressed="true"] { background: var(--secondary); color: var(--foreground); }
+.chart { height: 160px; display: block; width: 100%; overflow: visible; }
+.chart text { font: 10px var(--font-sans); fill: var(--muted-foreground); }
+.plot-shell { display:grid;grid-template-columns:34px 1fr;gap:8px;height:160px;padding-top:12px; }
+.plot-labels { display:flex;flex-direction:column;justify-content:space-between;height:126px;font-size:10px;color:var(--muted-foreground); }
+.plot-content { position:relative;min-width:0; }
+.plot-svg { display:block;width:100%;height:126px;overflow:visible; }
+.plot-times { display:flex;justify-content:space-between;color:var(--muted-foreground);font-size:10px;padding-top:10px; }
+.plot-empty { position:absolute;top:54px;left:0;right:0;text-align:center;color:var(--muted-foreground);font-size:11px; }
+.chart-caption { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 9px; font-size: 10px; color: var(--muted-foreground); }
+.conn-steps { display: grid; gap: 11px; margin-bottom: 15px; }
+.conn-step { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; }
+.address { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 43px; border-radius: 7px; padding: 7px 9px; background: var(--muted); border: 1px solid var(--border); }
+.address code { font-family: var(--font-mono); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.copy { border: 0; padding: 5px; background: transparent; color: var(--muted-foreground); min-width: 30px; }
+.helper { font-size: 11px; line-height: 1.6; color: var(--muted-foreground); }
+.stack { display: grid; gap: 16px; }
+.list { display: grid; gap: 0; max-height: 220px; overflow-y: auto; scrollbar-gutter: stable; }
+.list-row { display: flex; align-items: center; gap: 10px; min-height: 51px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.list-row:last-child { border-bottom: 0; }
+.list-row .grow { flex: 1; min-width: 0; }
+.list-row .name { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-row .detail { font-size: 10px; color: var(--muted-foreground); margin-top: 3px; }
+.avatar { width: 29px; height: 29px; border-radius: 7px; display: grid; place-items: center; background: color-mix(in srgb, var(--chart-1) 15%, var(--card)); color: var(--chart-1); font-size: 11px; font-weight: 600; }
+.avatar.violet { background: color-mix(in srgb, var(--chart-2) 15%, var(--card)); color: var(--chart-2); }
+.avatar.gold { background: color-mix(in srgb, var(--chart-3) 15%, var(--card)); color: var(--chart-3); }
+.activity { display: grid; gap: 14px; }
+.event { display: flex; align-items: baseline; gap: 9px; font-size: 11px; line-height: 1.5; }
+.event time { margin-left: auto; color: var(--muted-foreground); font-size: 10px; white-space: nowrap; }
+.protection { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.protection + .protection { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.protection h3 { font-size: 12px; }.protection p { margin-top: 5px; }
+.world-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.world-card { overflow: hidden; padding: 0; }
+.world-art { position: relative; height: 112px; overflow: hidden; background: linear-gradient(155deg, color-mix(in srgb, var(--art-color, var(--success)) 18%, var(--card)), var(--card)); }
+.world-art:before, .world-art:after { content: ''; position: absolute; width: 160px; height: 80px; background: color-mix(in srgb, var(--art-color, var(--success)) 22%, var(--card)); transform: skewY(-19deg); bottom: -15px; left: -15px; box-shadow: 145px 22px 0 color-mix(in srgb, var(--art-color, var(--success)) 12%, var(--card)); }
+.world-art:after { left: auto; right: -25px; bottom: -35px; transform: skewY(20deg); opacity: .7; }
+.world-art .world-symbol { position: absolute; left: 16px; top: 16px; font-size: 21px; }
+.world-art .badge { position: absolute; right: 12px; top: 12px; }
+.world-body { padding: 16px; }.world-body h2 { font-size: 16px; margin-bottom: 6px; }
+.world-body .world-meta { font-size: 11px; color: var(--muted-foreground); line-height: 1.7; }
+.world-body .actions { margin-top: 18px; }.world-body .actions .btn:first-child { flex: 1; }
+.section-heading { margin-block: 25px 12px; }
+.empty { padding: 32px 16px; text-align: center; color: var(--muted-foreground); line-height: 1.7; }
+.empty h2 { color: var(--foreground); margin-bottom: 8px; }
+.settings { max-width: 860px; display: grid; gap: 16px; }
+.settings .card { padding: 20px; }
+.setup-steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-top: 16px; }
+.setup-step { display: grid; align-content: start; gap: 8px; font-size: 11px; }
+.step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--secondary); display: grid; place-items: center; font-size: 10px; }
+.step-num.done { background: color-mix(in srgb, var(--success) 15%, var(--card)); color: var(--success); }
+.setting-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding-block: 16px; border-top: 1px solid var(--border); }
+.setting-row:first-of-type { border-top: 0; }.setting-row:last-child { padding-bottom: 0; }
+.setting-row h3 { font-size: 12px; }.setting-row p { font-size: 11px; color: var(--muted-foreground); margin-top: 5px; line-height: 1.6; }
+.engine-title { display: flex; align-items: center; gap: 12px; margin-block: 20px 16px; }
+.engine-icon { width: 43px; height: 43px; border: 1px solid var(--border); border-radius: 10px; background: var(--secondary); display: grid; place-items: center; font-size: 23px; }
+.version-row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border); }
+.version-row .btn { margin-left: auto; }
+.version-row .meta { flex: 1; font-size: 12px; line-height: 1.6; }
+.version-row .meta small { color: var(--muted-foreground); font-size: 10px; }
+.join-container { max-width: 580px; margin: 22px auto 50px; }
+.join-container .page-head { justify-content: center; text-align: center; }
+.join-form { display: flex; align-items: start; gap: 10px; }
+.join-form input { flex: 1; min-width: 0; }
+.field { display: grid; gap: 7px; margin-bottom: 16px; }
+.field label { font-size: 12px; font-weight: 550; }
+input:not([type="checkbox"]):not([type="range"]), select { width: 100%; min-height: 39px; padding: 9px 11px; border: 1px solid var(--border); border-radius: 7px; color: var(--foreground); background: var(--muted); }
+input::placeholder { color: var(--muted-foreground); opacity: .7; }
+input[type="checkbox"], input[type="range"] { accent-color: var(--primary); }
+.feedback { min-height: 40px; max-height: 64px; overflow: auto; font-size: 11px; line-height: 1.6; padding-top: 8px; color: var(--muted-foreground); }
+.feedback.error { color: var(--destructive); }
+.instructions { display: grid; gap: 12px; margin-top: 20px; }
+.instruction { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted-foreground); }
+.result { margin-top: 16px; }
+.result-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+.check-row { display: flex; gap: 9px; align-items: flex-start; line-height: 1.6; font-size: 12px; }
+.check-row input { margin-top: 4px; }
+.notice { padding: 13px; border-radius: 8px; background: var(--muted); border: 1px solid var(--border); font-size: 12px; line-height: 1.7; }
+.notice.warning { border-color: color-mix(in srgb, var(--warning) 30%, var(--border)); color: var(--warning); background: color-mix(in srgb, var(--warning) 5%, var(--card)); }
+.notice.danger { border-color: color-mix(in srgb, var(--destructive) 30%, var(--border)); color: var(--destructive); background: color-mix(in srgb, var(--destructive) 5%, var(--card)); }
+.divider { border: 0; border-top: 1px solid var(--border); margin-block: 18px; }
+dialog { width: min(550px, calc(100% - 24px)); max-height: calc(100% - 24px); padding: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--popover); color: var(--foreground); box-shadow: 0 18px 70px color-mix(in srgb, var(--background) 80%, transparent); }
+dialog::backdrop { background: color-mix(in srgb, var(--background) 70%, transparent); backdrop-filter: blur(3px); }
+dialog[open] { animation: enter 160ms ease-out; }
+.dialog-head { padding: 22px 22px 15px; display: flex; align-items: start; gap: 15px; }
+.dialog-head > div { flex: 1; min-width: 0; }.dialog-head h2 { font-size: 20px; letter-spacing: -.03em; overflow-wrap: anywhere; }
+.dialog-head p { font-size: 12px; color: var(--muted-foreground); line-height: 1.65; margin-top: 8px; }
+.dialog-body { padding: 0 22px 20px; max-height: 430px; overflow-y: auto; scrollbar-gutter: stable; }
+.dialog-foot { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; align-items: center; gap: 9px; flex-wrap: wrap; background: var(--muted); }
+.dialog-foot .left { margin-right: auto; }
+.summary { display: grid; gap: 11px; margin-block: 17px; }
+.summary-row { display: flex; justify-content: space-between; gap: 14px; font-size: 12px; line-height: 1.5; }.summary-row span:first-child { color: var(--muted-foreground); }
+.summary-row span:last-child { text-align: right; }
+.phrase { display: inline-block; font-family: var(--font-mono); padding: 7px 9px; background: var(--muted); border-radius: 5px; margin-block: 8px; user-select: all; overflow-wrap: anywhere; }
+.progress { height: 5px; background: var(--secondary); border-radius: 3px; margin-block: 18px; overflow: hidden; }
+.progress > i { display: block; height: 5px; background: var(--primary); border-radius: 3px; transition: width 200ms; }
+.progress-list { display: grid; gap: 13px; min-height: 130px; }.progress-list p { font-size: 12px; color: var(--muted-foreground); }.progress-list .current { color: var(--foreground); }
+.logs { font-family: var(--font-mono); font-size: 11px; line-height: 1.9; background: var(--muted); border-radius: 8px; padding: 13px; max-height: 260px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translate(-50%, 12px); opacity: 0; pointer-events: none; padding: 12px 17px; background: var(--popover); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 30px color-mix(in srgb, var(--background) 60%, transparent); color: var(--foreground); font-size: 12px; width: max-content; max-width: calc(100% - 28px); z-index: 100; transition: opacity 160ms, transform 160ms; }
+.toast.visible { opacity: 1; transform: translate(-50%, 0); }
+.footer { color: var(--muted-foreground); border-top: 1px solid var(--border); padding-block: 13px; display: flex; justify-content: space-between; gap: 12px; font-size: 10px; }
+@keyframes enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 1000px) { .dashboard { grid-template-columns: 1fr 1fr; }.dashboard .wide { grid-column: span 2; }.world-grid { grid-template-columns: repeat(2,1fr); }.topbar { gap: 16px; }.top-state .state-name { display: none; } }
+@media (max-width: 600px) {
+  .topbar { flex-wrap: wrap; gap: 9px; padding-block: 11px; }.brand { font-size: 15px; }.mark { width: 22px; height: 22px; }
+  .tabs { order: 3; width: 100%; }.tab { flex: 1; padding-inline: 10px; font-size: 12px; }.top-state { font-size: 10px; }
+  .demo { font-size: 10px; }.demo .label { font-size: 9px; }.demo .details { max-width: 210px; }
+  main { padding-top: 18px; }.page-head { flex-direction: column; gap: 15px; }.page-head .actions { width: 100%; }.page-head .actions .btn { flex: 1; }
+  .stats { grid-template-columns: repeat(2,1fr); gap: 10px; }.stat { min-height: 106px; }.stat-value { font-size: 25px; }
+  .dashboard { grid-template-columns: 1fr; }.dashboard .wide { grid-column: auto; }.world-grid { grid-template-columns: 1fr; }
+  .settings .card { padding: 16px; }.setup-steps { grid-template-columns: repeat(2,1fr); }.setting-row { align-items: flex-start; gap: 10px; }.setting-row .btn { min-width: 70px; }
+  .join-container { margin-top: 6px; }.join-container .page-head { align-items: center; }.join-form { flex-direction: column; }.join-form input { width: 100%; }.join-form .btn { width: 100%; }
+  .version-row { flex-wrap: wrap; }.version-row .meta { min-width: 140px; }.dialog-head { padding: 18px 16px 14px; }.dialog-body { padding: 0 16px 16px; }.dialog-foot { padding: 13px 16px; }.dialog-foot .btn { min-width: 70px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>enderlink</div>
+    <nav class="tabs" aria-label="Main navigation">
+      <button class="tab" data-action="nav" data-route="library" data-nav="host"><span class="emoji" aria-hidden="true">🏠</span>Host</button>
+      <button class="tab" data-action="nav" data-route="join" data-nav="join"><span class="emoji" aria-hidden="true">🔗</span>Join</button>
+      <button class="tab" data-action="nav" data-route="settings" data-nav="settings"><span class="emoji" aria-hidden="true">⚙️</span>Settings</button>
+    </nav>
+    <div class="top-state" id="top-state"></div>
+  </header>
+  <div class="demo"><span class="label">DESIGN PREVIEW</span><span class="details">Sample data · actions are simulated</span><button class="text-btn" data-action="reset">Reset demo ↺</button></div>
+  <main id="main"></main>
+  <footer class="footer"><span>Your computer. Your worlds.</span><span>No Enderlink account needed.</span></footer>
+</div>
+<dialog id="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+const $ = (selector, root = document) => root.querySelector(selector);
+const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const e = escapeHtml;
+const sampleAddress = 'mossy-hollow.example.net:25565';
+const catalog = { paper: { game:'1.21.1', initial:'132', candidate:'133', label:'Paper', icon:'📄', size:'58 MB' }, fabric: { game:'1.21.1', initial:'0.16.10', candidate:'0.16.14', label:'Fabric', icon:'🧵', size:'12 MB' } };
+function initialState() { return {
+  worlds: [
+    {id:'mossy', name:'Mossy Hollow', engine:'paper', version:'132', game:'1.21.1', running:true, size:'1.8 GB', symbol:'🌲', color:'--success', memory:6, revision:1},
+    {id:'cinder', name:'Cinder Trails', engine:'fabric', version:'0.16.10', game:'1.21.1', running:false, size:'3.2 GB', symbol:'🔥', color:'--chart-3', memory:8, revision:1},
+    {id:'quiet', name:'Quiet Hours', engine:'paper', version:'132', game:'1.21.1', running:false, size:'420 MB', symbol:'🌙', color:'--chart-2', memory:4, revision:1}
+  ],
+  installed:{ paper:['132'], fabric:['0.16.10'] },
+  backups:[{id:'backup-1', worldId:'mossy', name:'Mossy Hollow', when:'Today, 18:24', size:'1.6 GB', engine:'paper',version:'132',game:'1.21.1'}],
+  allowed:{mossy:['Host Player','Player Two','Player Three'],cinder:['Host Player'],quiet:['Host Player']},
+  provider:true, defaultEngine:'paper', defaultMemory:6, reduced:false, preventSleep:true, saved:[],
+  events:['World saved automatically','Player Two joined the world','Public address assigned']
+}; }
+let state=initialState(), route='dashboard', selected='mossy', engineTab='paper', chartMode='memory', toastTimer, modalState=null, busy=false, operationTimers=[];
+const world = () => state.worlds.find(w=>w.id===selected);
+const hasSoftware = w => state.installed[w.engine].includes(w.version);
+const activeWorld = () => state.worlds.find(w=>w.running);
+function badge(text, tone='') { return `<span class="badge ${tone}">${tone==='green'?'<i class="dot"></i>':''}${e(text)}</span>`; }
+function button(label, action, extra='', klass='') { return `<button class="btn ${klass}" data-action="${action}" ${extra}>${label}</button>`; }
+function summary(rows) { return `<div class="summary">${rows.map(([a,b])=>`<div class="summary-row"><span>${e(a)}</span><span>${e(b)}</span></div>`).join('')}</div>`; }
+function status(w) { return w.running?badge('Running','green'):hasSoftware(w)?badge('Stopped'):badge('Software missing','amber'); }
+function notify(message) { clearTimeout(toastTimer); $('#toast').textContent=message; $('#toast').classList.add('visible'); toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),4200); }
+function render() {
+  const nav=route==='join'?'join':route==='settings'?'settings':'host';
+  document.querySelectorAll('[data-nav]').forEach(el=>{ if(el.dataset.nav===nav)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current'); });
+  const active=activeWorld(); $('#top-state').innerHTML=active?`<i class="dot green"></i><span class="state-name">${e(active.name)} · </span>1 world running`:'<i class="dot"></i>No active session';
+  $('#main').innerHTML=route==='settings'?renderSettings():route==='join'?renderJoin():route==='library'?renderLibrary():renderDashboard();
+}
+function navigate(next) { route=next; render(); }
+function renderLibrary() {
+  return `<div class="page-head"><div><div class="eyebrow">Make room for a little adventure</div><h1>Your worlds</h1><p class="sub">Pick up where you left off, or start somewhere new.</p></div><div class="actions">${button('Import server','import','','ghost')}${button('＋ Create world','create','','primary')}</div></div>
+  ${state.worlds.length?`<div class="world-grid">${state.worlds.map(w=>`<article class="card world-card"><div class="world-art" style="--art-color:var(${w.color})"><span class="world-symbol" aria-hidden="true">${w.symbol}</span>${status(w)}</div><div class="world-body"><h2>${e(w.name)}</h2><div class="world-meta">${catalog[w.engine].label} · Minecraft ${e(w.game)}<br>${e(w.size)} · ${w.running?'Playing now':'Saved on this computer'}</div><div class="actions">${button('Open world →','open-world',`data-id="${w.id}"`)}${button('⋯','world-menu',`data-id="${w.id}" aria-label="Manage ${e(w.name)}"`,'icon ghost')}</div></div></article>`).join('')}</div>`:`<div class="card empty"><h2>A fresh start</h2><p>Your first world is a few steps away.</p><div style="margin-top:18px">${button('Create world','create','','primary')}</div></div>`}
+  <div class="section-heading row between"><h2>Good to know</h2>${button('Hosting setup ↗','nav','data-route="settings"','ghost')}</div><div class="card"><p class="helper">Your worlds stay on this computer. Friends join with a Minecraft address, and your allowed-player list controls who gets in. You can save several worlds; one runs at a time.</p></div>
+  ${state.backups.some(b=>!state.worlds.some(w=>w.id===b.worldId))?`<div class="section-heading row between"><h2>Backups from deleted worlds</h2>${button('Browse backups','backups','','ghost')}</div>`:''}`;
+}
+function renderChart(w) {
+  const cpu=chartMode==='cpu', color=cpu?'--chart-2':'--chart-1';
+  const values=cpu?[24,32,29,38,27,30,45,34,29,33,24,26,40,31,29,34,27,30,32,28,31,25,29,26]:[43,45,44,46,47,44,46,48,45,48,50,47,49,51,48,50,53,50,51,54,52,53,54,53];
+  const points=values.map((v,i)=>`${i*19.1},${118-v*1.17}`).join(' ');
+  const labels=cpu?['100%','66%','33%','0%']:['6 GB','4 GB','2 GB','0 GB'];
+  return `<div class="plot-shell" role="img" aria-label="Illustrative ${cpu?'CPU utilization':'process memory'} history for the last 10 minutes. Sample data, not a real measurement."><div class="plot-labels">${labels.map(x=>`<span>${x}</span>`).join('')}</div><div class="plot-content"><svg class="plot-svg" viewBox="0 0 440 120" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="chart-fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(${color})" stop-opacity=".18"/><stop offset="1" stop-color="var(${color})" stop-opacity="0"/></linearGradient></defs>${[1,40,79,118].map(y=>`<line x1="0" x2="440" y1="${y}" y2="${y}" stroke="var(--border)" stroke-dasharray="3 5"/>`).join('')}${w.running?`<polygon points="0,118 ${points} 440,118" fill="url(#chart-fill)"/><polyline points="${points}" fill="none" stroke="var(${color})" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`:''}</svg>${w.running?'':'<span class="plot-empty">Start this world to see activity</span>'}<div class="plot-times"><span>10 min ago</span><span>5 min</span><span>Now</span></div></div></div>`;
+}
+function renderDashboard() {
+  const w=world();if(!w){route='library';return renderLibrary();}
+  const players=w.running?(state.allowed[w.id]||[]).slice(0,3):[], backups=state.backups.filter(b=>b.worldId===w.id), up=w.version!==catalog[w.engine].candidate;
+  return `<button class="back" data-action="nav" data-route="library">← All worlds</button><div class="page-head"><div><div class="row" style="margin-bottom:9px">${status(w)}<span class="small muted">${catalog[w.engine].label} · ${e(w.game)}</span></div><h1>${e(w.name)}</h1><p class="sub">A little corner of the world, just for your people.</p></div><div class="actions">${button('⋯','world-menu',`data-id="${w.id}" aria-label="World settings"`,'icon ghost')}${button('Console','console','','ghost')}${button(w.running?'■ Save and stop':'▶ Start world',w.running?'stop-review':'start',`data-id="${w.id}"`,w.running?'':'primary')}</div></div>
+  <div class="stats">${[['Process memory',w.running?'3.2':'—',w.running?`/ ${w.memory} GB`:'GB','Maximum heap allocation: '+w.memory+' GB','▤'],['CPU usage',w.running?'26':'—','%',w.running?'Sample of total CPU capacity':'No process running','⌁'],['Players online',String(players.length),'/ 8','Only allowed players can join','♧'],['Session time',w.running?'1h 24':'—',w.running?'min':'','World saved on this computer','◷']].map(([label,val,unit,foot,icon])=>`<div class="card stat"><div class="stat-label">${label}<span aria-hidden="true">${icon}</span></div><div class="stat-value">${val} <span>${unit}</span></div><div class="stat-foot">${foot}</div></div>`).join('')}</div>
+  <div class="dashboard"><section class="card chart-card wide"><div class="card-title"><h2>Resource activity</h2><div class="segment" aria-label="Chart metric"><button data-action="chart" data-mode="memory" aria-pressed="${chartMode==='memory'}">Memory</button><button data-action="chart" data-mode="cpu" aria-pressed="${chartMode==='cpu'}">CPU</button></div></div><div id="chart-content">${renderChart(w)}</div><div class="chart-caption" id="chart-caption"><span><i class="dot" style="color:var(${chartMode==='memory'?'--chart-1':'--chart-2'})"></i> ${w.running?(chartMode==='memory'?'Process memory · current 3.2 GB':'CPU · current 26%'):'Unavailable while stopped'}</span><span>Illustrative history</span></div></section>
+  <section class="card"><div class="card-title"><h2>Connection</h2>${badge(w.running&&state.provider?'Ready to share':'Not public',w.running&&state.provider?'green':'')}</div><div class="conn-steps"><div class="conn-step"><span class="muted">Minecraft server</span><span class="${w.running?'green':'muted'}">${w.running?'Ready locally':'Stopped'}</span></div><div class="conn-step"><span class="muted">Playit tunnel</span><span class="${w.running&&state.provider?'green':'muted'}">${w.running&&state.provider?'Connected':state.provider?'Standby':'Not linked'}</span></div><div class="conn-step"><span class="muted">Endpoint response</span><span class="numbers">${w.running&&state.provider?'24 ms · sample':'—'}</span></div></div><div class="address"><code title="${sampleAddress}">${w.running&&state.provider?sampleAddress:'Start hosting to get an address'}</code><button class="copy" data-action="copy" data-value="${sampleAddress}" aria-label="Copy Minecraft address" ${!w.running||!state.provider?'disabled':''}>⧉</button></div><p class="helper" style="margin-top:12px">Friends paste this into Minecraft. No Enderlink account or app needed.</p><p class="helper" style="margin-top:8px">Example address only · external reachability is unverified.</p></section>
+  <section class="card"><div class="card-title"><h2>Players <span class="muted">${players.length}</span></h2><button class="text-btn" data-action="access">Manage access →</button></div><div class="list">${players.length?players.map((p,i)=>`<div class="list-row"><div class="avatar ${['','violet','gold'][i]}">${e(p.slice(0,2))}</div><div class="grow"><div class="name">${e(p)}</div><div class="detail">Allowed Minecraft player</div></div><i class="dot green" title="Online in sample data"></i></div>`).join(''):'<div class="empty small">No players online.<br>Your allowed-player list is saved.</div>'}</div><p class="helper" style="margin-top:14px">Whitelist on · Minecraft authentication on</p></section>
+  <section class="card"><div class="card-title"><h2>Recent activity</h2><span class="small muted">This session</span></div><div class="activity">${state.events.slice(0,4).map((x,i)=>`<div class="event"><i class="dot ${i===0?'green':'muted'}"></i><span>${e(x)}</span><time>${['Now','2m','5m','8m'][i]}</time></div>`).join('')}</div><div style="margin-top:20px">${button('View console','console','','ghost')}</div></section>
+  <section class="card"><div class="card-title"><h2>World care</h2><span aria-hidden="true">✧</span></div><div class="protection"><div><h3>${backups.length?'Backup available':'No backup yet'}</h3><p class="helper">${backups.length?e(backups[backups.length-1].when):'Create a recovery point'}</p></div>${button('Back up','backup-review','','ghost')}</div><div class="protection"><div><h3>${up?'Engine update available':'Software up to date'}</h3><p class="helper">${catalog[w.engine].label} ${e(w.version)}${up?' → '+catalog[w.engine].candidate:''}</p></div>${button(up?'Review':'Versions',up?'update-review':'nav',up?'':'data-route="settings"','ghost')}</div><div style="margin-top:16px"><button class="text-btn" data-action="backups">Browse backups & restore →</button></div></section></div>`;
+}
+function renderJoin() {
+  return `<div class="join-container"><div class="page-head"><div><div class="eyebrow">Your friends are one address away</div><h1>Find your next adventure.</h1><p class="sub">Check the address your host shared, then join in Minecraft.</p></div></div><section class="card"><label for="join-address" style="display:block;margin-bottom:9px;font-size:12px">Minecraft server address</label><div class="join-form"><input id="join-address" placeholder="play.example.net:25565" autocomplete="off" spellcheck="false" aria-describedby="join-feedback"><button class="btn primary" data-action="check-server">Check server</button></div><div class="feedback" id="join-feedback" role="status">Try mossy-hollow.example.net in this preview. No network request is sent.</div><div class="instructions"><div class="instruction"><span class="step-num">1</span>Open Minecraft Java Edition.</div><div class="instruction"><span class="step-num">2</span>Choose Multiplayer → Add Server.</div><div class="instruction"><span class="step-num">3</span>Paste the address and join.</div></div></section><div id="join-result"></div><p class="helper" style="margin-top:18px;text-align:center">Your host must allow your Minecraft username.<br>Enderlink does not need to stay open while you play.</p>${state.saved.length?`<div class="section-heading"><h2>Saved servers</h2></div><div class="card list">${state.saved.map(s=>`<div class="list-row"><div class="grow"><div class="name">${e(s)}</div><div class="detail">Saved on this computer</div></div>${button('Copy','copy',`data-value="${e(s)}"`,'ghost')}</div>`).join('')}</div>`:''}</div>`;
+}
+function renderSettings() {
+  const c=catalog[engineTab], versions=state.installed[engineTab], update=!versions.includes(c.candidate), anySoftware=state.installed.paper.length+state.installed.fabric.length>0;
+  return `<div class="page-head"><div><div class="eyebrow">Make yourself at home</div><h1>Settings</h1><p class="sub">Everything you need to host, in one place.</p></div></div><div class="settings">
+  <section class="card"><div class="card-title"><h2>Hosting setup</h2>${badge(state.provider&&anySoftware?'Ready for your first session':'Finish setup',state.provider&&anySoftware?'green':'amber')}</div><p class="helper">Set up once. Reuse the connection for all your worlds.</p><div class="setup-steps">${[['1','Server software','Choose Paper or Fabric',anySoftware,'software-help'],['2','Link Playit','Free account for the host',state.provider,'provider'],['3','Check connection','Verify your public address',state.provider,'verify-provider'],['4','Create a world','Invite your friends',state.worlds.length>0,'create']].map(([n,title,sub,done,action])=>`<div class="setup-step"><span class="step-num ${done?'done':''}">${done?'✓':n}</span><strong>${title}</strong><span class="muted">${sub}</span><button class="text-btn" style="text-align:left" data-action="${action}">${done?'Review':'Set up'} →</button></div>`).join('')}</div></section>
+  <section class="card" id="software"><div class="card-title"><h2>Server software</h2><span class="small muted">Managed by Enderlink</span></div><div class="segment" aria-label="Server engine"><button data-action="engine-tab" data-engine="paper" aria-pressed="${engineTab==='paper'}">📄 Paper</button><button data-action="engine-tab" data-engine="fabric" aria-pressed="${engineTab==='fabric'}">🧵 Fabric</button></div><div class="engine-title"><div class="engine-icon" aria-hidden="true">${c.icon}</div><div><h2>${c.label}</h2><p class="helper" style="margin-top:4px">${engineTab==='paper'?'Familiar Minecraft, with optional server plugins.':'Modded worlds, with a matching client pack.'}</p></div></div><label class="check-row" style="margin-bottom:16px"><input type="checkbox" data-change="default-engine" ${state.defaultEngine===engineTab?'checked':''}>Use ${c.label} by default for new worlds</label><p class="helper" style="margin-bottom:13px">Existing worlds keep their own engine and version. Both engines can be installed.</p>${versions.length?versions.map(v=>`<div class="version-row"><div class="meta">Minecraft ${c.game} · ${engineTab==='paper'?'build':'loader'} ${e(v)}<br><small>${state.worlds.filter(w=>w.engine===engineTab&&w.version===v).map(w=>e(w.name)).join(', ')||'Not used by a saved world'} · ${c.size}</small></div>${badge('Installed','green')}${button('Uninstall','uninstall-review',`data-engine="${engineTab}" data-version="${v}"`,'ghost')}</div>`).join(''):'<div class="notice">Not installed. Your saved worlds are kept separately.</div>'}<div class="setting-row"><div><h3>${update?'New version in sample catalog':'Latest sample version installed'}</h3><p>Minecraft ${c.game} · ${engineTab==='paper'?'build':'loader'} ${c.candidate}<br>Installing does not update any existing world.</p></div>${button(update?(versions.length?'Download update':'Download'):'Check updates',update?'install':'check-updates',`data-engine="${engineTab}"`,'primary')}</div><p class="helper" style="margin-top:14px">Illustrative versions, not a live catalog. Compatible Java is managed automatically.</p></section>
+  <section class="card"><div class="card-title"><h2>Connection provider</h2>${badge(state.provider?'Demo linked':'Not linked',state.provider?'green':'')}</div><div class="setting-row"><div><h3>Playit</h3><p>Only hosts need an account. Your friends join directly in Minecraft.</p></div>${button(state.provider?'Manage':'Link account','provider','','ghost')}</div><div class="setting-row"><div><h3>Connection check</h3><p>Local readiness and tunnel status are checked separately.</p></div>${button('Verify','verify-provider','','ghost')}</div></section>
+  <section class="card"><div class="card-title"><h2>Resources & behavior</h2></div><div class="setting-row"><div><h3>Default memory</h3><p>New worlds can override this. Leave room for Minecraft and your OS.</p></div><select aria-label="Default memory" style="width:110px" data-change="memory">${[4,6,8].map(n=>`<option value="${n}" ${state.defaultMemory===n?'selected':''}>${n} GB</option>`).join('')}</select></div><div class="setting-row"><div><h3>Keep computer awake while hosting</h3><p>Applies only during an active session.</p></div><input type="checkbox" data-change="sleep" aria-label="Keep computer awake while hosting" ${state.preventSleep?'checked':''}></div><div class="setting-row"><div><h3>Reduced motion</h3><p>Keep transitions immediate. System preferences are also respected.</p></div><input type="checkbox" data-change="motion" aria-label="Reduced motion" ${state.reduced?'checked':''}></div></section>
+  <section class="card"><div class="card-title"><h2>Backups & storage</h2>${button('Browse backups','backups','','ghost')}</div><div class="setting-row"><div><h3>Worlds, software, and backups stay separate</h3><p>${state.worlds.length} saved worlds · ${state.backups.length} backups · ${state.installed.paper.length+state.installed.fabric.length} installed engine versions<br>Sample storage figures are illustrative.</p></div>${button('Storage details','storage','','ghost')}</div><div class="setting-row"><div><h3>Remove Enderlink and managed components</h3><p>Review engines, Java, worlds, and backups before cleanup.<br>Deleting the app file alone may leave downloaded data behind.</p></div>${button('Review','cleanup','','danger')}</div></section></div>`;
+}
+function showDialog(title, description, body, footer='') {
+  const d=$('#dialog');d.innerHTML=`<div class="dialog-head"><div><h2 id="dialog-title">${e(title)}</h2><p id="dialog-description">${e(description)}</p></div><button class="btn icon ghost" data-action="close" aria-label="Close dialog" ${busy?'disabled':''}>×</button></div><div class="dialog-body">${body}</div><div class="dialog-foot">${footer||button('Done','close','','primary')}</div>`;
+  if(!d.open)d.showModal();
+}
+function closeDialog(){if(busy)return;$('#dialog').close();modalState=null;}
+function simulate(title, stages, done) {
+  busy=true;modalState={kind:'operation'};
+  const paint=i=>showDialog(title,'Design simulation only. No files or services are changed.',`<div class="progress"><i style="width:${Math.round((i+1)/stages.length*100)}%"></i></div><div class="progress-list">${stages.map((s,j)=>`<p class="${j===i?'current':''}">${j<i?'✓':j===i?'◌':'·'} ${e(s)}</p>`).join('')}</div>`,'<span class="helper">Finishing the simulated operation…</span>');
+  paint(0);stages.slice(1).forEach((_,i)=>operationTimers.push(setTimeout(()=>paint(i+1),(i+1)*500)));
+  operationTimers.push(setTimeout(()=>{busy=false;$('#dialog').close();modalState=null;done();render();},stages.length*500+200));
+}
+async function copy(value){try{await navigator.clipboard.writeText(value);notify('Address copied. Example only — not a live server.');}catch{showDialog('Copy address','Clipboard access is unavailable in this viewer.',`<label class="field"><span class="small">Select and copy this sample address</span><input value="${e(value)}" readonly></label>`);$('#dialog input').select();}}
+function worldMenu(id){selected=id;const w=world();if(!w)return;showDialog(w.name,'World settings and lifecycle actions.',`${summary([['Server software',catalog[w.engine].label+' '+w.version],['Minecraft',w.game],['Storage',w.size],['State',w.running?'Running':hasSoftware(w)?'Stopped':'Software missing']])}<div class="actions">${button('Rename','rename')}${button('Review update','update-review')}${button('Backups','backups')}</div><hr class="divider"><p class="helper" style="margin-bottom:12px">Deleting removes this world’s data. Installed server software and kept backups are separate.</p>${button('Delete world…','delete-review','','danger')}`);}
+function stopReview(id, next=''){selected=id||selected;const w=world();if(!w)return;modalState={kind:'stop',id:w.id,next};showDialog('Save and stop '+w.name,'Players will disconnect. The world stays saved on this computer.',`<div class="notice">Minecraft will finish saving before its process stops. The public tunnel returns to standby.</div>`,button('Keep playing','close','','ghost')+button('Save and stop','stop-confirm','','primary'));}
+function deletionReview(){const w=world();if(!w)return;const backups=state.backups.filter(b=>b.worldId===w.id);modalState={kind:'delete',id:w.id,revision:w.revision};showDialog('Delete '+w.name+'?','This removes the saved world, including all dimensions and player progress.',`<div class="notice danger">This cannot be undone after deletion. Installed engines and other worlds are not removed.</div>${summary([['World data',w.size],['Server software',catalog[w.engine].label+' '+w.version],['Existing backups',backups.length+' available']])}${w.running?`<div class="notice warning">Stop this world before deleting it. Players are currently connected.</div><div style="margin-top:12px">${button('Save and stop first','delete-stop','','ghost')}</div>`:`<label class="check-row"><input id="keep-backups" type="checkbox" checked>Keep existing backups${backups.length?' so this world can be restored.':' (there are none yet).'}</label>${!backups.length?`<div style="margin-top:12px">${button('Back up first','backup-review','','ghost')}</div>`:''}<hr class="divider"><label class="field" for="delete-phrase"><span>To confirm, type:</span><span class="phrase">DELETE ${e(w.name)}</span><input id="delete-phrase" autocomplete="off" spellcheck="false" aria-describedby="delete-feedback" placeholder="DELETE ${e(w.name)}"></label><div class="feedback" id="delete-feedback" role="status">The phrase must match the world name exactly.</div>`}`,button('Keep world','close','','ghost')+button('Delete world','delete-confirm','id="delete-submit" disabled','danger'));}
+function phraseMatches(value,name){return value.normalize('NFC')===('DELETE '+name).normalize('NFC');}
+function reviewUpdate(){const w=world();if(!w)return;const c=catalog[w.engine];modalState={kind:'update',id:w.id,revision:w.revision};showDialog('Update '+w.name,'Install a compatible version, then apply it to this world deliberately.',`${summary([['Minecraft',w.game+' → '+w.game],['Server software',c.label+' '+w.version+' → '+c.candidate],['Backup','Complete stopped-world snapshot'],['Other worlds','Keep their pinned versions']])}${w.engine==='fabric'?'<div class="notice warning">Check your modpack’s loader requirements. Metadata checks cannot guarantee every mod is compatible.</div>':'<div class="notice">A same-Minecraft Paper build update. A new Minecraft version gets a separate migration review.</div>'}${w.running?'<p class="helper" style="margin-top:15px">Save and stop this world before applying the update.</p>':'<p class="helper" style="margin-top:15px">If a backup fails, nothing is applied. Restoring afterward uses the complete snapshot, not just an older JAR.</p>'}`,button('Cancel','close','','ghost')+button(w.running?'Save and stop first':w.version===c.candidate?'Already current':'Back up & update',w.running?'update-stop':'update-confirm',w.version===c.candidate?'disabled':'','primary'));}
+function uninstallReview(engine,version){const depend=state.worlds.filter(w=>w.engine===engine&&w.version===version),running=depend.some(w=>w.running);modalState={kind:'uninstall',engine,version};showDialog('Uninstall '+catalog[engine].label+' '+version+'?','Remove this downloaded engine version from Enderlink.',`${summary([['Engine artifact',catalog[engine].size],['Dependent worlds',depend.map(w=>w.name).join(', ')||'None'],['Worlds & backups','Kept'],['Shared Java','Kept while another component needs it']])}<div class="notice ${running?'warning':''}">${running?'A dependent world is running. Stop it before uninstalling this version.':depend.length?'The listed worlds will show “Software missing.” Reinstall this exact version to play them again.':'This version is not used by a saved world.'}</div>`,button('Cancel','close','','ghost')+button('Uninstall version','uninstall-confirm',running?'disabled':'','danger'));}
+function backupReview(){const w=world();if(!w)return;modalState={kind:'backup',id:w.id};showDialog('Back up '+w.name,'Create a consistent recovery point for this complete server instance.',`${summary([['Includes','Worlds, dimensions, settings, mods and manifest'],['Current state',w.running?'Running — will save and stop':'Stopped'],['After backup','World remains stopped'],['Location','Enderlink-managed backup storage']])}<div class="notice">Copying a live world can produce an inconsistent backup. This flow saves and stops it first.</div>`,button('Cancel','close','','ghost')+button(w.running?'Stop & back up':'Create backup','backup-confirm','','primary'));}
+function browseBackups(){showDialog('Your backups','Restore into a new world. Existing worlds are not overwritten.',state.backups.length?`<div class="list" style="max-height:300px">${state.backups.map(b=>`<div class="list-row"><div class="grow"><div class="name">${e(b.name)}</div><div class="detail">${e(b.when)} · ${e(b.size)} · ${catalog[b.engine].label} ${b.version}${state.worlds.some(w=>w.id===b.worldId)?'':' · world deleted'}</div></div>${button('Restore','restore-review',`data-id="${b.id}"`,'ghost')}</div>`).join('')}</div>`:'<div class="empty">No backups yet. Create one from a world dashboard.</div>');}
+function manageAccess(){const w=world();if(!w)return;modalState={kind:'access',id:w.id};showDialog('Allowed players','Only these Minecraft accounts can join. Friends do not need Enderlink.',`<div class="notice">Minecraft authentication and the whitelist enforce access. Adding a player does not grant operator permissions.</div><div class="list" style="margin-block:12px">${(state.allowed[w.id]||[]).map(p=>`<div class="list-row"><div class="avatar">${e(p.slice(0,2))}</div><div class="grow"><div class="name">${e(p)}</div></div>${button('Remove','revoke-review',`data-player="${e(p)}"`,'ghost')}</div>`).join('')}</div><label for="player-name" class="small">Minecraft username</label><div class="join-form" style="margin-top:8px"><input id="player-name" placeholder="FriendUsername" autocomplete="off"><button class="btn primary" data-action="add-player">Add player</button></div><div class="feedback" id="player-feedback" role="status">Production verifies the Minecraft account before granting access.</div>`);}
+let draft=null;
+function createWizard(step=0){if(!draft)draft={name:'',engine:state.defaultEngine,memory:state.defaultMemory,step:0};draft.step=step;modalState={kind:'create'};const titles=['Name your world','Choose server software','Make room to play','Ready when you are'];
+  const body=[`<label class="field"><span>World name</span><input id="new-name" placeholder="e.g. Mossy Hollow" maxlength="64" value="${e(draft.name)}" aria-describedby="create-feedback"></label><label class="field"><span>Seed <span class="muted">· optional</span></span><input id="new-seed" placeholder="Leave blank for a surprise" value="${e(draft.seed||'')}"></label>`,
+  `<label class="field"><span>Server software</span><select id="new-engine"><option value="paper" ${draft.engine==='paper'?'selected':''}>📄 Paper — ordinary Minecraft & plugins</option><option value="fabric" ${draft.engine==='fabric'?'selected':''}>🧵 Fabric — mods & matching packs</option></select></label><label class="field"><span>Minecraft version</span><select><option>1.21.1 · sample supported version</option></select></label><p class="helper">The full app lists supported versions from official sources. Each world keeps its own exact version.</p>`,
+  `<label class="field"><span>Maximum memory: <strong id="memory-label">${draft.memory} GB</strong></span><input id="new-memory" type="range" min="2" max="12" step="1" value="${draft.memory}"></label><div class="notice">Leave enough memory for your game and operating system. Real recommendations use the computer’s available resources.</div>`,
+  `${summary([['World name',draft.name],['Engine',catalog[draft.engine].label],['Minecraft','1.21.1 · sample'],['Maximum memory',draft.memory+' GB'],['Access','Minecraft authentication + allowed players']])}<label class="check-row"><input type="checkbox" id="eula-demo">I understand the production app will require explicit Minecraft EULA acceptance before running a server.</label><p class="helper" style="margin-top:12px">This prototype creates only a sample world card. It does not accept terms or install software.</p>`][step];
+  showDialog(titles[step],`Step ${step+1} of 4 · ${['World','Software','Resources','Review'].join(' → ')}`,body+'<div class="feedback" id="create-feedback" role="status"></div>',button(step?'Back':'Cancel',step?'create-back':'close','','ghost')+button(step===3?'Create sample world':'Continue',step===3?'create-confirm':'create-next','','primary'));
+}
+function providerDialog(){showDialog('Link your hosting connection','Your provider account belongs to you. Enderlink has no accounts.',`<div class="instructions" style="margin-top:0"><div class="instruction"><span class="step-num">1</span>Create or sign into your free Playit account.</div><div class="instruction"><span class="step-num">2</span>Authorize the agent using the provider’s browser flow.</div><div class="instruction"><span class="step-num">3</span>Verify the Minecraft tunnel and save the credential securely.</div></div><hr class="divider"><p class="helper">No login or token is collected by this design preview. The production integration must prove the supported claim/setup flow.</p><div class="actions" style="margin-top:14px"><a class="btn ghost" href="https://playit.gg/" target="_blank" rel="noopener noreferrer">Visit official Playit ↗</a></div>`,button('Cancel','close','','ghost')+button(state.provider?'Simulate disconnect':'Simulate linked account',state.provider?'disconnect-provider':'link-provider','','primary'));}
+function validateAddress(raw){
+  const value=raw.trim(); if(!value||value.length>253||/[\s/@?#\\]/.test(value))return false;
+  if(value.startsWith('[')){const m=value.match(/^\[([0-9a-fA-F:]+)\](?::(\d+))?$/);return Boolean(m&&m[1].includes(':')&&(!m[2]||(+m[2]>0&&+m[2]<=65535)));}
+  const parts=value.split(':');if(parts.length>2)return false;
+  return /^[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?$/.test(parts[0])&&!parts[0].includes('..')&&(!parts[1]||(/^\d+$/.test(parts[1])&&+parts[1]>0&&+parts[1]<=65535))&&!(parts.length===2&&!parts[1]);
+}
+function addSampleBackup(w){const b={id:'b-'+Date.now(),worldId:w.id,name:w.name,when:'Just now',size:w.size,engine:w.engine,version:w.version,game:w.game};state.backups.push(b);return b;}
+document.addEventListener('click',event=>{
+  const target=event.target.closest('[data-action]');if(!target||target.disabled)return;const action=target.dataset.action;if(busy&&!['copy'].includes(action))return;
+  switch(action){
+    case 'nav':navigate(target.dataset.route);break;
+    case 'open-world':selected=target.dataset.id;navigate('dashboard');break;
+    case 'reset':operationTimers.forEach(clearTimeout);operationTimers=[];state=initialState();selected='mossy';route='dashboard';engineTab='paper';chartMode='memory';draft=null;closeDialog();render();notify('Sample data reset.');break;
+    case 'close':closeDialog();break;
+    case 'copy':copy(target.dataset.value);break;
+    case 'chart':chartMode=target.dataset.mode;$('#chart-content').innerHTML=renderChart(world());document.querySelectorAll('[data-action="chart"]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===chartMode)));$('#chart-caption').innerHTML='<span>'+(!world().running?'Unavailable while stopped':chartMode==='memory'?'Process memory · current 3.2 GB':'CPU · current 26%')+'</span><span>Illustrative history</span>';break;
+    case 'world-menu':worldMenu(target.dataset.id);break;
+    case 'start':{const w=world(),active=activeWorld();if(!w)break;if(active&&active.id!==w.id){notify('Save and stop '+active.name+' before starting another world.');break;}if(!hasSoftware(w)){modalState={kind:'reinstall',id:w.id};showDialog('Reinstall required software',w.name+' keeps its pinned version.',summary([['Engine',catalog[w.engine].label+' '+w.version],['World data','Preserved'],['Action','Reinstall the missing version']]),button('Cancel','close','','ghost')+button('Reinstall','reinstall','','primary'));break;}simulate('Starting '+w.name,['Check installed software','Start Minecraft','Wait for local readiness','Connect public tunnel'],()=>{w.running=true;w.revision++;state.events.unshift(w.name+' started');notify('Sample world started. No real server was launched.');});break;}
+    case 'reinstall':{const w=world();simulate('Reinstalling server software',['Resolve exact pinned version','Download & verify artifacts','Register managed components'],()=>{if(!state.installed[w.engine].includes(w.version))state.installed[w.engine].push(w.version);notify('Sample engine restored. You can start the world.');});break;}
+    case 'stop-review':stopReview(target.dataset.id);break;
+    case 'stop-confirm':{const w=state.worlds.find(w=>w.id===modalState?.id),next=modalState?.next;if(!w)break;simulate('Saving '+w.name,['Save all dimensions','Stop Minecraft safely','Return tunnel to standby'],()=>{w.running=false;w.revision++;state.events.unshift(w.name+' saved and stopped');if(next==='delete')deletionReview();else if(next==='update')reviewUpdate();else notify('World stopped. Your progress stays saved.');});break;}
+    case 'delete-stop':stopReview(selected,'delete');break;
+    case 'update-stop':stopReview(selected,'update');break;
+    case 'delete-review':deletionReview();break;
+    case 'delete-confirm':{const m=modalState,w=world(),input=$('#delete-phrase');if(!m||m.kind!=='delete'||!w||m.id!==w.id||m.revision!==w.revision||w.running||!input||!phraseMatches(input.value,w.name)){notify('Deletion review changed. Please review again.');break;}const keep=$('#keep-backups').checked;simulate('Removing '+w.name,['Recheck stopped world & confirmation','Remove the sample world from the library','Preserve reviewed backups; finish cleanup'],()=>{state.worlds=state.worlds.filter(x=>x.id!==w.id);if(!keep)state.backups=state.backups.filter(b=>b.worldId!==w.id);delete state.allowed[w.id];route='library';notify('Sample world deleted. '+(keep?'Existing backups kept.':'Its sample backups were also removed.'));});break;}
+    case 'rename':{const w=world();modalState={kind:'rename',id:w.id};showDialog('Rename world','Changing the name does not move files or change the server address.',`<label class="field"><span>World name</span><input id="rename-input" maxlength="64" value="${e(w.name)}"></label><div class="feedback" id="rename-feedback" role="status"></div>`,button('Cancel','close','','ghost')+button('Save name','rename-confirm','','primary'));break;}
+    case 'rename-confirm':{const w=world(),name=$('#rename-input').value.normalize('NFC').trim();if(!name||name.length>64||/[\u0000-\u001f\u007f]/.test(name)||state.worlds.some(x=>x.id!==w.id&&x.name===name)){$('#rename-feedback').textContent='Choose a unique name between 1 and 64 characters.';$('#rename-feedback').classList.add('error');break;}w.name=name;w.revision++;closeDialog();render();notify('World renamed.');break;}
+    case 'update-review':reviewUpdate();break;
+    case 'update-confirm':{const m=modalState,w=world();if(!m||m.kind!=='update'||!w||w.running||w.revision!==m.revision)break;simulate('Updating '+w.name,['Verify compatibility and available space','Create & verify complete backup','Install pinned target version','Apply the reviewed binding'],()=>{addSampleBackup(w);const v=catalog[w.engine].candidate;if(!state.installed[w.engine].includes(v))state.installed[w.engine].push(v);w.version=v;w.revision++;state.events.unshift('Engine updated; restore point kept');notify('Sample world updated. Start it when you’re ready.');});break;}
+    case 'engine-tab':engineTab=target.dataset.engine;render();break;
+    case 'install':{const engine=target.dataset.engine,c=catalog[engine];simulate('Downloading '+c.label,['Resolve compatible engine & Java','Download staged artifacts','Verify and register components'],()=>{if(!state.installed[engine].includes(c.candidate))state.installed[engine].push(c.candidate);notify('Sample component installed. Existing worlds are unchanged.');});break;}
+    case 'check-updates':notify('Sample catalog checked. Production fetches official stable versions.');break;
+    case 'uninstall-review':uninstallReview(target.dataset.engine,target.dataset.version);break;
+    case 'uninstall-confirm':{const m=modalState;if(!m||m.kind!=='uninstall'||state.worlds.some(w=>w.engine===m.engine&&w.version===m.version&&w.running))break;simulate('Uninstalling '+catalog[m.engine].label,['Check active references','Remove owned engine artifacts','Reconcile dependent worlds'],()=>{state.installed[m.engine]=state.installed[m.engine].filter(v=>v!==m.version);notify('Sample engine removed. Worlds and backups kept.');});break;}
+    case 'backup-review':backupReview();break;
+    case 'backup-confirm':{const w=world();if(!w)break;simulate('Backing up '+w.name,['Save and stop the world','Copy complete instance & binding','Verify recovery archive'],()=>{w.running=false;w.revision++;addSampleBackup(w);state.events.unshift('Complete backup created');notify('Sample backup created. The world remains stopped.');});break;}
+    case 'backups':browseBackups();break;
+    case 'restore-review':{const b=state.backups.find(b=>b.id===target.dataset.id);if(!b)break;modalState={kind:'restore',id:b.id};showDialog('Restore '+b.name,'A new saved world will be created. Existing worlds stay intact.',summary([['Backup',b.when],['Engine',catalog[b.engine].label+' '+b.version],['Minecraft',b.game],['Restored name',b.name+' (restored)']])+'<div class="notice">The pinned engine may need reinstalling. Restoration does not upgrade the world.</div>',button('Cancel','close','','ghost')+button('Restore as new world','restore-confirm','','primary'));break;}
+    case 'restore-confirm':{const b=state.backups.find(b=>b.id===modalState?.id);if(!b)break;simulate('Restoring backup',['Verify archive & manifest','Restore to a fresh instance directory','Register the new world'],()=>{const id='restore-'+Date.now();let name=b.name+' (restored)',n=2;while(state.worlds.some(w=>w.name===name)){name=b.name+' (restored '+n+')';n++;}state.worlds.push({id,name,engine:b.engine,version:b.version,game:b.game,running:false,size:b.size,symbol:'🌱',color:'--success',memory:6,revision:1});state.allowed[id]=[];selected=id;route='dashboard';notify('Sample backup restored into a new world.');});break;}
+    case 'access':manageAccess();break;
+    case 'add-player':{const w=world(),input=$('#player-name'),name=input.value.trim(),f=$('#player-feedback');if(!/^[A-Za-z0-9_]{3,16}$/.test(name)){f.textContent='Use a Minecraft username: 3–16 letters, digits, or underscores.';f.classList.add('error');break;}if((state.allowed[w.id]||[]).some(p=>p.toLowerCase()===name.toLowerCase())){f.textContent='This player is already allowed.';break;}state.allowed[w.id]=[...(state.allowed[w.id]||[]),name];manageAccess();render();notify('Sample player added. Production verifies the Minecraft identity.');break;}
+    case 'revoke-review':{const w=world(),player=target.dataset.player;modalState={kind:'revoke',id:w.id,player};showDialog('Remove '+player+'?','This Minecraft account will no longer be allowed to join.',`<div class="notice ${w.running?'warning':''}">${w.running?'If this player is online, removal also disconnects them.':'The player will be refused the next time they try to join.'}</div>`,button('Cancel','access','','ghost')+button('Remove access','revoke-confirm','','danger'));break;}
+    case 'revoke-confirm':{const m=modalState;if(!m||m.kind!=='revoke')break;state.allowed[m.id]=(state.allowed[m.id]||[]).filter(p=>p!==m.player);manageAccess();render();notify('Sample access revoked.');break;}
+    case 'console':{const w=world();showDialog('Server console',w.name+' · illustrative log output',`<div class="logs">[18:22:01 INFO] Loading properties\n[18:22:02 INFO] Preparing level “world”\n[18:22:06 INFO] Done! For help, type “help”\n[18:22:06 ENDERLINK] Server ready locally\n[18:22:08 ENDERLINK] Public address assigned\n[18:24:10 INFO] Saved all dimensions\n${w.running?'[18:25:21 INFO] '+e((state.allowed[w.id]||[])[0]||'Player')+' joined the game':'[18:26:00 INFO] Stopping server'}</div><p class="helper" style="margin-top:12px">Production logs are bounded, sanitized, and exportable. This preview executes no commands.</p>`);break;}
+    case 'create':draft=null;createWizard();break;
+    case 'create-next':{const step=draft.step;if(step===0){const name=$('#new-name').value.trim().normalize('NFC');if(!name||/[\u0000-\u001f\u007f]/.test(name)||state.worlds.some(w=>w.name===name)){$('#create-feedback').textContent='Choose a unique name for this world.';$('#create-feedback').classList.add('error');break;}draft.name=name;draft.seed=$('#new-seed').value;}if(step===1)draft.engine=$('#new-engine').value;if(step===2)draft.memory=+$('#new-memory').value;createWizard(step+1);break;}
+    case 'create-back':createWizard(Math.max(0,draft.step-1));break;
+    case 'create-confirm':{if(!$('#eula-demo').checked){$('#create-feedback').textContent='Please acknowledge the EULA step in the production flow.';$('#create-feedback').classList.add('error');break;}const d={...draft};simulate('Preparing '+d.name,['Validate world settings','Prepare compatible software','Create a saved world profile'],()=>{const c=catalog[d.engine],version=state.installed[d.engine].at(-1)||c.candidate,id='world-'+Date.now();if(!state.installed[d.engine].includes(version))state.installed[d.engine].push(version);state.worlds.push({id,name:d.name,engine:d.engine,version,game:c.game,running:false,size:'New world',symbol:'🌱',color:'--success',memory:d.memory,revision:1});state.allowed[id]=[];selected=id;route='dashboard';draft=null;notify('Sample world created. Add players before starting.');});break;}
+    case 'import':showDialog('Import an existing server','A guided import into Enderlink-owned storage.',`<div class="instructions" style="margin-top:0"><div class="instruction"><span class="step-num">1</span>Choose a server folder or supported server-pack archive.</div><div class="instruction"><span class="step-num">2</span>Review detected Paper/Fabric version, mods, and world files.</div><div class="instruction"><span class="step-num">3</span>Copy into a new managed instance. Keep the original intact.</div></div><div class="notice" style="margin-top:18px">The production flow validates archive paths and never executes bundled shell scripts. File import is not implemented in this design preview.</div>`);break;
+    case 'check-server':{const input=$('#join-address'),value=input.value.trim(),f=$('#join-feedback');if(!validateAddress(value)){f.textContent='Enter a hostname or IP with an optional valid port (1–65535).';f.classList.add('error');$('#join-result').innerHTML='';break;}f.classList.remove('error');f.textContent='Showing a sample response. This prototype does not query the network.';$('#join-result').innerHTML=`<section class="card result"><div class="result-head"><div><h2>Example Minecraft server</h2><p class="helper" style="margin-top:5px">Minecraft 1.21.1 · 3 / 8 players · sample data</p></div>${badge('Sample online','green')}</div><div class="address"><code>${e(value)}</code><button class="copy" data-action="copy" data-value="${e(value)}" aria-label="Copy server address">⧉</button></div><p class="helper" style="margin-top:12px">Ask the host for the required modpack. Public server status does not verify your account’s access.</p><div class="actions" style="margin-top:16px">${button('Copy address','copy',`data-value="${e(value)}"`,'primary')}${button('Save server','save-server',`data-value="${e(value)}"`,'ghost')}</div></section>`;break;}
+    case 'save-server':if(!state.saved.includes(target.dataset.value))state.saved.push(target.dataset.value);notify('Server saved in this demo session.');break;
+    case 'provider':providerDialog();break;
+    case 'link-provider':state.provider=true;closeDialog();render();notify('Demo linked state enabled. No provider account was accessed.');break;
+    case 'disconnect-provider':state.provider=false;closeDialog();render();notify('Demo tunnel disconnected. Local worlds remain running.');break;
+    case 'verify-provider':showDialog('Connection check','A real check will distinguish each stage of reachability.',summary([['Managed agent',state.provider?'Demo connected':'Not linked'],['Minecraft process',activeWorld()?'Demo ready locally':'No running world'],['Public endpoint',state.provider&&activeWorld()?'Example address assigned':'Not ready'],['External reachability','Not verified in this prototype']])+'<div class="notice">A successful local check alone does not prove that a friend on another network can join.</div>');break;
+    case 'software-help':showDialog('Choose your server software','Both Paper and Fabric can be installed inside Enderlink.',`<div class="notice"><strong>Paper</strong> is for ordinary Minecraft and server plugins.<br><br><strong>Fabric</strong> is for compatible Fabric mods and packs. Players need the required client setup.<br><br>Changing your default only affects new worlds.</div>`);break;
+    case 'storage':showDialog('Storage on this computer','Managed components stay separate from your world data.',summary([['Worlds',state.worlds.length+' managed instances'],['Backups',state.backups.length+' recovery archives'],['Paper versions',state.installed.paper.length+' installed'],['Fabric versions',state.installed.fabric.length+' installed'],['Java & download cache','Shared managed dependencies']])+'<p class="helper">The production view shows measured bytes and opens only app-owned folders. Sample storage is not measured from your computer.</p>');break;
+    case 'cleanup':showDialog('Remove Enderlink data','Choose what to keep before a full uninstall.',`<div class="notice warning">Managed engines, Java, and cached downloads can be removed through the cleanup flow. Worlds and backups require a separate deliberate choice.</div>${summary([['Running world',activeWorld()?.name||'None'],['Worlds',state.worlds.length+' — keep by default'],['Backups',state.backups.length+' — keep by default'],['Provider credentials','Remove locally; provider account is separate']])}<p class="helper">Production cleanup first stops owned processes and reviews all affected data. On macOS/Linux, deleting the app file alone may leave app data behind. This preview does not remove files.</p>`,button('Keep everything','close','','primary'));break;
+  }
+});
+document.addEventListener('input',event=>{
+  if(event.target.id==='delete-phrase'){const w=world(),match=w&&phraseMatches(event.target.value,w.name);$('#delete-submit').disabled=!match;$('#delete-feedback').textContent=match?'Phrase matches. Review your backup choice before deleting.':'The phrase must match the world name exactly.';}
+  if(event.target.id==='new-memory')$('#memory-label').textContent=event.target.value+' GB';
+});
+document.addEventListener('change',event=>{
+  const change=event.target.dataset.change;
+  if(change==='default-engine'){if(event.target.checked)state.defaultEngine=engineTab;else state.defaultEngine=engineTab==='paper'?'fabric':'paper';notify('Default for new worlds: '+catalog[state.defaultEngine].label+'. Existing worlds keep their engine.');}
+  if(change==='sleep'){state.preventSleep=event.target.checked;notify('Demo preference saved. No system sleep settings changed.');}
+  if(change==='memory'){state.defaultMemory=+event.target.value;notify('Memory default saved for new worlds. Existing worlds are unchanged.');}
+  if(change==='motion'){state.reduced=event.target.checked;let style=$('#motion-style');if(!style){style=document.createElement('style');style.id='motion-style';document.head.append(style);}style.textContent=state.reduced?'*,*::before,*::after {animation:none!important;transition:none!important}':'';}
+});
+$('#dialog').addEventListener('cancel',event=>{if(busy)event.preventDefault();else modalState=null;});
+$('#dialog').addEventListener('click',event=>{if(event.target===$('#dialog')){const r=$('#dialog').getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)closeDialog();}});
+render();
+</script>
+</body>
+</html>

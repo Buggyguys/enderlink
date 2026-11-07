@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#211829"/><stop offset="1" stop-color="#0b0a11"/></linearGradient>
+    <linearGradient id="neon" x1="8" y1="6" x2="40" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#ff9fdf"/><stop offset=".5" stop-color="#ed67d0"/><stop offset="1" stop-color="#a387ff"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#d857c7" stop-opacity=".16"/><stop offset="1" stop-color="#ce51cf" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect x="28" y="28" width="968" height="968" rx="224" fill="url(#bg)"/>
+  <circle cx="512" cy="512" r="420" fill="url(#glow)"/>
+  <rect x="54" y="54" width="916" height="916" rx="204" fill="none" stroke="#e0b0ef" stroke-opacity=".12" stroke-width="3"/>
+  <g transform="translate(128 128) scale(16)" fill="none" stroke="url(#neon)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="rotate(-35 24 24)">
+      <path d="M23 14H11a7 7 0 0 0-7 7v6a7 7 0 0 0 7 7h12a7 7 0 0 0 7-7v-1a2 2 0 0 0-2-2h-8a2 2 0 0 1-2-2v-1a7 7 0 0 1 7-7h12a7 7 0 0 1 7 7v6a7 7 0 0 1-7 7H25"/>
+    </g>
+  </g>
+</svg>

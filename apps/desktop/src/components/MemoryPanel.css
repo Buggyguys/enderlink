@@ -1,0 +1,184 @@
+.memory-status-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px 20px;
+  flex-wrap: wrap;
+}
+.memory-status-total p {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.memory-status-total strong {
+  font-size: 27px;
+  font-weight: 550;
+  letter-spacing: -0.035em;
+}
+.memory-status-total p > span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.memory-status-sample {
+  color: var(--muted-foreground);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+.memory-status-bar {
+  display: flex;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--secondary);
+  margin-block: 17px 20px;
+}
+.memory-status-part {
+  min-width: 0;
+  flex-shrink: 0;
+  transition: width 400ms ease;
+}
+.memory-tone-system {
+  background: #67577f;
+}
+.memory-tone-app {
+  background: #ee9dd7;
+}
+.memory-tone-client {
+  background: #a18ae2;
+}
+.memory-tone-server {
+  background: #c37ade;
+}
+.memory-tone-available {
+  background: #292136;
+}
+.memory-status-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+  gap: 15px 20px;
+  margin: 0;
+}
+.memory-status-legend > div {
+  min-width: 0;
+}
+.memory-status-legend dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+.memory-status-legend dd {
+  margin: 7px 0 0 13px;
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.memory-status-swatch {
+  height: 7px;
+  width: 7px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+.memory-status-details {
+  margin-top: 18px;
+}
+.memory-status-details summary {
+  width: fit-content;
+  font-size: 10px;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.memory-status-details p,
+.memory-settings-copy,
+.memory-settings-guide p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+.memory-status-details p {
+  margin: 10px 0 0;
+  max-width: 75ch;
+  font-size: 10px;
+}
+.memory-settings-allocation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.memory-settings-allocation label {
+  font-size: 12px;
+}
+.memory-settings-allocation .select-trigger {
+  width: 110px;
+  min-height: 34px;
+  flex-shrink: 0;
+}
+.memory-settings-copy {
+  margin: 10px 0 16px;
+  max-width: 75ch;
+}
+.memory-settings-guide {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+.memory-settings-guide summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  cursor: pointer;
+  list-style: none;
+}
+.memory-settings-guide summary::-webkit-details-marker {
+  display: none;
+}
+.memory-settings-guide summary::after {
+  content: "+";
+  margin-left: auto;
+  font-size: 15px;
+}
+.memory-settings-guide[open] summary::after {
+  content: "−";
+}
+.memory-settings-guide table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 11px;
+  table-layout: fixed;
+}
+.memory-settings-guide caption {
+  text-align: left;
+  font-size: 10px;
+  color: var(--muted-foreground);
+  margin-bottom: 8px;
+}
+.memory-settings-guide th,
+.memory-settings-guide td {
+  text-align: left;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 400;
+  line-height: 1.5;
+}
+.memory-settings-guide thead th {
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+.memory-settings-guide tbody th {
+  color: var(--muted-foreground);
+}
+.memory-settings-guide p {
+  margin: 12px 0 0;
+  font-size: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .memory-status-part {
+    transition: none;
+  }
+}
+[data-reduce-motion="true"] .memory-status-part {
+  transition: none;
+}

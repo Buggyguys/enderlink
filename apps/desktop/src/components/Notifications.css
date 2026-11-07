@@ -1,0 +1,124 @@
+.notification-stack {
+  position: fixed;
+  z-index: 110;
+  inset: auto 20px 20px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: 350px;
+  max-width: calc(100vw - 32px);
+  max-height: min(65vh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.notification-card {
+  pointer-events: auto;
+  flex: 0 0 auto;
+  padding: 15px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--popover);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: 0 8px 28px #0005;
+  color: var(--foreground);
+  font-size: 12px;
+  animation: notification-in 180ms ease-out both;
+}
+.notification-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.notification-heading > svg {
+  color: var(--pink);
+  flex: 0 0 auto;
+}
+.notification-heading strong {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+.notification-dismiss {
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.notification-card p {
+  margin: 7px 0 0;
+  font-size: 11px;
+  line-height: 1.6;
+  max-height: 125px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  color: var(--muted-foreground);
+}
+.notification-card .progress {
+  margin-top: 12px;
+}
+.notification-card > .text-btn {
+  margin-top: 10px;
+}
+.notification-error {
+  border-color: color-mix(in srgb, var(--warning) 40%, var(--border));
+}
+.notification-error .notification-heading > svg {
+  color: var(--warning);
+}
+.notification-leaving {
+  animation: notification-out 180ms ease-in both;
+}
+@keyframes notification-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes notification-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+[data-glass="false"] .notification-card {
+  background: #191520;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+[data-reduce-motion="true"] .notification-card {
+  animation: none;
+}
+[data-reduce-motion="true"] .notification-leaving {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .notification-card {
+    animation: none;
+  }
+  .notification-leaving {
+    opacity: 0;
+  }
+}
+@media (max-width: 540px) {
+  .notification-stack {
+    right: 16px;
+    bottom: 16px;
+  }
+}

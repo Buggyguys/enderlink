@@ -1,0 +1,21 @@
+* text=auto
+
+# Keep source and build scripts stable across Windows, macOS and Linux.
+*.rs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+
+# PowerShell accepts LF, but CRLF is the native checkout convention on Windows.
+*.ps1 text eol=crlf
+
+*.png binary
+*.icns binary
+*.ico binary

@@ -1,0 +1,195 @@
+/* Imported last. Keep controls readable independently of the OS colour scheme. */
+input,
+textarea,
+select {
+  color-scheme: dark;
+  caret-color: var(--foreground);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea {
+  -webkit-text-fill-color: currentColor;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #a99bb7;
+  -webkit-text-fill-color: #a99bb7;
+  opacity: 1;
+}
+input:disabled,
+textarea:disabled {
+  color: #a99ab6;
+  -webkit-text-fill-color: currentColor;
+  opacity: 1;
+}
+input[type="radio"],
+input[type="checkbox"],
+input[type="range"] {
+  accent-color: #d6a2ef;
+}
+input:-webkit-autofill {
+  -webkit-text-fill-color: #f2eafa;
+  caret-color: #f2eafa;
+  -webkit-box-shadow: inset 0 0 0 1000px #17131f;
+}
+.field,
+.field-grid > * {
+  min-width: 0;
+}
+.select-trigger:disabled {
+  opacity: 1;
+}
+
+/* Safari 16 and some older WebKitGTK builds lack color-mix(). */
+@supports not (background: color-mix(in srgb, white, black)) {
+  .notice.warning,
+  .notification-error {
+    background: #282026;
+    border-color: #8c724b;
+  }
+  .notice.error,
+  .btn.danger {
+    background: #321f2c;
+    border-color: #9c6074;
+  }
+  .backup-time-dot[data-selected="true"] {
+    stroke: #bd81bd;
+  }
+  .backup-time-viewport:focus-visible {
+    outline: 2px solid #bca1ed;
+  }
+}
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .card,
+  .dialog-content,
+  .notification-card,
+  .tabs {
+    background: #1b1724;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .card,
+  .dialog-content,
+  .notification-card,
+  .tabs {
+    background: #1b1724 !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .dialog-overlay {
+    background: #09070dea;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Windows contrast themes remove background images, including text gradients. */
+@media (forced-colors: active) {
+  :root {
+    --background: Canvas;
+    --foreground: CanvasText;
+    --card: Canvas;
+    --card-foreground: CanvasText;
+    --popover: Canvas;
+    --popover-foreground: CanvasText;
+    --muted: Canvas;
+    --muted-foreground: CanvasText;
+    --border: CanvasText;
+    --primary: Highlight;
+    --primary-foreground: HighlightText;
+    --ring: Highlight;
+  }
+  .atmosphere,
+  .nav-accent {
+    display: none;
+  }
+  .brand-accent,
+  .gradient-text,
+  .tab[aria-current="page"] .nav-label {
+    color: CanvasText;
+    -webkit-text-fill-color: currentColor;
+    background: none;
+  }
+  .tab[aria-current="page"] .nav-symbol > svg {
+    opacity: 1;
+  }
+  .nav-selection {
+    border: 2px solid Highlight;
+  }
+  .card,
+  .dialog-content,
+  .notification-card,
+  .tabs {
+    background: Canvas !important;
+    color: CanvasText;
+    border-color: CanvasText;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .btn,
+  .select-trigger {
+    background: ButtonFace;
+    color: ButtonText;
+    border-color: ButtonText;
+  }
+  .select-menu,
+  .select-scroll {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  .select-option,
+  .select-option[data-state="checked"] {
+    background: Canvas;
+    color: CanvasText;
+  }
+  .select-option[data-highlighted] {
+    background: Highlight;
+    color: HighlightText;
+    outline-color: HighlightText;
+    forced-color-adjust: none;
+  }
+  .select-check,
+  .select-chevron {
+    color: inherit;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea {
+    color: FieldText;
+    -webkit-text-fill-color: currentColor;
+    background: Field;
+    border-color: FieldText;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: GrayText;
+    -webkit-text-fill-color: currentColor;
+  }
+  button:disabled,
+  input:disabled,
+  .select-option[data-disabled] {
+    color: GrayText;
+    border-color: GrayText;
+    opacity: 1;
+  }
+  .switch > span {
+    background: Canvas;
+    border: 1px solid ButtonText;
+  }
+  .switch input:checked + span {
+    background: Highlight;
+    border-color: Highlight;
+    forced-color-adjust: none;
+  }
+  .switch > span:after {
+    background: ButtonText;
+  }
+  .switch input:checked + span:after {
+    background: HighlightText;
+  }
+  :focus-visible {
+    outline: 2px solid Highlight;
+  }
+}

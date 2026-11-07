@@ -1,0 +1,71 @@
+name: Desktop checks
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            bundles: app
+          - os: ubuntu-24.04
+            bundles: deb
+          - os: windows-2022
+            bundles: nsis
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - name: Linux prerequisites
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libssl-dev libdbus-1-dev
+      - run: npm ci
+      - run: npm run check:public
+      - run: npm run check:version
+      - run: npm audit --audit-level=high
+      - run: cargo fmt --all --check
+      - run: npm test
+      - run: npm run build
+      - name: Install Chromium with Linux dependencies
+        if: runner.os == 'Linux'
+        run: npx playwright install --with-deps chromium
+      - name: Install Chromium for UI checks
+        if: runner.os != 'Linux'
+        run: npx playwright install chromium
+      - name: Production UI checks (Chromium)
+        run: npm run test:ui
+        env:
+          ENDERLINK_TEST_BROWSER: chromium
+      - name: Install WebKit for UI checks
+        if: runner.os == 'Linux'
+        run: npx playwright install --with-deps webkit
+      - name: Install WebKit for UI checks (macOS)
+        if: runner.os == 'macOS'
+        run: npx playwright install webkit
+      - name: Production UI checks (WebKit)
+        if: runner.os != 'Windows'
+        run: npm run test:ui
+        env:
+          ENDERLINK_TEST_BROWSER: webkit
+      - run: cargo test --workspace --locked
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Build desktop bundle
+        run: npm run tauri -w apps/desktop -- build --bundles ${{ matrix.bundles }} --ci
+      - uses: actions/upload-artifact@v4
+        with:
+          name: enderlink-${{ runner.os }}-${{ runner.arch }}
+          path: target/release/bundle/
