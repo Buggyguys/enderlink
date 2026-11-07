@@ -373,7 +373,7 @@ impl Service {
                 !destination.exists(),
                 "The chosen destination already exists."
             );
-            fs::rename(&staging, &destination)?;
+            commit_saved_directory(&staging, &destination)?;
             #[cfg(unix)]
             fs::File::open(&parent)?.sync_all()?;
             Ok(())
@@ -517,6 +517,43 @@ impl Service {
         }
         let _ = fs::remove_dir_all(staging);
         result
+    }
+}
+
+fn commit_saved_directory(staging: &Path, destination: &Path) -> Result<()> {
+    match fs::rename(staging, destination) {
+        Ok(()) => Ok(()),
+        Err(rename_error) => {
+            ensure!(
+                !destination.exists(),
+                "The chosen destination appeared while the library was being saved."
+            );
+            let copy_result = (|| -> Result<()> {
+                // Windows can reject a directory rename when a security scanner or
+                // another filesystem observer briefly holds a staged file. The
+                // destination is still new, so copy the already validated tree,
+                // flush its files, then remove the staging directory.
+                files::copy_tree(staging, destination)
+                    .context("Could not copy the saved library to the chosen folder")?;
+                for path in files::safe_entries(destination)? {
+                    if path.is_file() {
+                        fs::File::open(&path)?.sync_all()?;
+                    }
+                }
+                fs::remove_dir_all(staging)
+                    .context("Could not remove the temporary saved-library staging folder")?;
+                Ok(())
+            })();
+            if copy_result.is_ok() {
+                Ok(())
+            } else {
+                let _ = fs::remove_dir_all(destination);
+                let copy_error = copy_result.expect_err("copy result was checked above");
+                Err(copy_error.context(format!(
+                    "Could not commit the saved library directory after rename failed: {rename_error}"
+                )))
+            }
+        }
     }
 }
 

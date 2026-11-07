@@ -634,14 +634,22 @@ const dist = path.join(root, "apps/desktop/dist");
     const dense = await page
       .locator(".card")
       .first()
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
+      .evaluate((el) =>
+        Number.parseFloat(
+          getComputedStyle(el).getPropertyValue("--surface-opacity"),
+        ),
+      );
     await choose("Glass finish", "clear");
     const clear = await page
       .locator(".card")
       .first()
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
+      .evaluate((el) =>
+        Number.parseFloat(
+          getComputedStyle(el).getPropertyValue("--surface-opacity"),
+        ),
+      );
     assert(
-      dense.endsWith("0.84)") && clear.endsWith("0.14)"),
+      Math.abs(dense - 0.84) < 0.001 && Math.abs(clear - 0.14) < 0.001,
       "glass opacity selection applies to cards",
     );
     await page.getByRole("button", { name: "Use lightweight mode" }).click();
